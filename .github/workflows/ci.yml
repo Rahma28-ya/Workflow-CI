@@ -26,7 +26,7 @@ jobs:
         run: |
           mlflow run MLProject --env-manager=local
 
-      # 👉 INI TAMBAHANNYA (WAJIB UNTUK SKILLED / ADVANCED)
+      # WAJIB untuk SKILLED / ADVANCED
       - name: Upload MLflow artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -39,9 +39,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build MLflow Docker Image
+      # BUILD DOCKER (BENAR)
+      - name: Build Docker Image
         run: |
-            mlflow projects build-docker -n telco-churn-mlflow:latest .
+          docker build -t telco-churn-mlflow:latest .
 
       - name: Tag and Push Docker Image
         run: |
