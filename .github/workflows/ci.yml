@@ -35,7 +35,7 @@ jobs:
 
       - name: Build MLflow Docker Image
         run: |
-          mlflow build-docker MLProject -n telco-churn-mlflow:latest
+            mlflow projects build-docker MLProject -n telco-churn-mlflow:latest
 
       - name: Tag and Push Docker Image
         run: |
