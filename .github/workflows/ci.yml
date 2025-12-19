@@ -24,7 +24,7 @@ jobs:
 
       - name: Run MLflow Project
         run: |
-            mlflow run MLProject
+            mlflow run MLProject --env-manager=local
 
 
       - name: Login to Docker Hub
