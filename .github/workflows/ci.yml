@@ -28,7 +28,7 @@ jobs:
 
       # 👉 INI TAMBAHANNYA (WAJIB UNTUK SKILLED / ADVANCED)
       - name: Upload MLflow artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts
           path: mlruns
