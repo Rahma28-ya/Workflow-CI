@@ -1,8 +1,7 @@
-name: Telco-Churn-Project
+name: telco-churn-project
 
 conda_env: conda.yaml
 
 entry_points:
   main:
-    parameters: {}
     command: "python modelling.py"
