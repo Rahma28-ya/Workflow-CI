@@ -27,7 +27,7 @@ acc = accuracy_score(y_test, y_pred)
 
 # LANGSUNG LOG
 mlflow.log_metric("accuracy", acc)
-mlflow.sklearn.log_model(model, "model")
+mlflow.sklearn.log_model(model, artifact_path="model")
 
 print("Accuracy:", acc)
 print(classification_report(y_test, y_pred))
