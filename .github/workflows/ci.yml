@@ -32,6 +32,12 @@ jobs:
         cd MLProject
         mlflow run . --env-manager=local
 
+    - name: Upload MLflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-artifacts
+        path: MLProject/mlruns
+        
     # Build Docker Image dari artifact (BENAR)
     - name: Build Docker Image with MLflow
       run: |
