@@ -25,7 +25,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 
-# ✅ LANGSUNG LOG
+# LANGSUNG LOG
 mlflow.log_metric("accuracy", acc)
 mlflow.sklearn.log_model(model, "model")
 
