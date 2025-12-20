@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install mlflow scikit-learn pandas
 
-      # Run modelling.py langsung (generate model)
+      # Run modelling.py 
       - name: Run Modelling Script
         working-directory: MLProject
         run: |
