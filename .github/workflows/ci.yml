@@ -41,9 +41,11 @@ jobs:
     # Build Docker Image dari artifact
     - name: Build Docker Image with MLflow
       run: |
+        cd MLProject
         mlflow models build-docker \
-          --model-uri $MODEL_PATH \
+          --model-uri runs:/0/model \
           --name ${{ secrets.DOCKER_USERNAME }}/telco-churn-model
+
 
     # Login Docker Hub
     - name: Login to Docker Hub
