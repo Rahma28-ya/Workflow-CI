@@ -32,21 +32,14 @@ jobs:
         cd MLProject
         mlflow run . --env-manager=local
 
-    # Cari folder model 
-    - name: Locate model artifact
-      run: |
-        MODEL_PATH=$(find MLProject/mlruns -type d -path "*/artifacts/model" | head -n 1)
-        echo "MODEL_PATH=$MODEL_PATH" >> $GITHUB_ENV
-
     # Build Docker Image dari artifact (BENAR)
     - name: Build Docker Image with MLflow
       run: |
-        echo "Using model path: $MODEL_PATH"
+        cd MLProject
+        ls -R mlruns
         mlflow models build-docker \
-          --model-uri $MODEL_PATH \
+          -m mlruns/0/*/artifacts/model \
           --name ${{ secrets.DOCKER_USERNAME }}/telco-churn-model
-
-
 
     # Login Docker Hub
     - name: Login to Docker Hub
