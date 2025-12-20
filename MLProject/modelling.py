@@ -8,11 +8,6 @@ from sklearn.metrics import accuracy_score, classification_report
 
 # Path dataset
 DATA_PATH = "namadataset_preprocessing/telco_customer_churn_preprocessing.csv"
-# Folder model untuk MLflow
-MODEL_DIR = "MLProject/model"
-
-# Pastikan folder model ada
-os.makedirs(MODEL_DIR, exist_ok=True)
 
 # Load data
 df = pd.read_csv(DATA_PATH)
@@ -36,9 +31,11 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 
-# Log metric dan model ke MLflow
+# Log metric
 mlflow.log_metric("accuracy", acc)
-mlflow.sklearn.log_model(model, artifact_path=MODEL_DIR)
+
+# Log model ke MLflow dengan path default "model"
+mlflow.sklearn.log_model(model, artifact_path="model")
 
 print("Accuracy:", acc)
 print(classification_report(y_test, y_pred))
