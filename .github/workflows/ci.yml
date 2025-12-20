@@ -1,57 +1,50 @@
-name: MLflow CI Retraining - Final
+name: MLflow CI Retraining
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  train-and-docker:
+  retrain:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
-      - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      # Setup Python
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.9"
 
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install mlflow scikit-learn pandas
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install mlflow scikit-learn pandas numpy
 
-      # Run MLProject: train & log model
-      - name: Run MLProject
-        run: |
-          mlflow run MLProject --env-manager=local
+    - name: Run MLflow Project (Retraining)
+      run: |
+        cd MLProject
+        mlflow run . --env-manager=local
 
-      # Upload MLflow artifacts (optional)
-      - name: Upload MLflow artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mlflow-artifacts
-          path: mlruns
+    - name: Get latest run_id
+      run: |
+        RUN_ID=$(ls mlruns/0 | sort | tail -n 1)
+        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
 
-      # Docker login
-      - name: Docker login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build Docker Image with MLflow
+      run: |
+        mlflow models build-docker \
+          --model-uri runs:/$RUN_ID/model \
+          --name ${{ secrets.DOCKERHUB_USERNAME }}/telco-churn-model
 
-      # Build & push Docker image
-      - name: Build and Push Docker Image
-        run: |
-          # Ambil run_id terakhir dari experiment 0
-          RUN_ID=$(ls mlruns/0 | sort | tail -n 1)
-          
-          # Build docker image dari model artifact
-          mlflow models build-docker -m mlruns/0/$RUN_ID/artifacts/model \
-            -n ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow:latest
-          
-          # Push image ke Docker Hub
-          docker push ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow:latest
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/telco-churn-model
