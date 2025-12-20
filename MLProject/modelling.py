@@ -32,7 +32,7 @@ acc = accuracy_score(y_test, y_pred)
 
 # Log metric dan model ke MLflow
 mlflow.log_metric("accuracy", acc)
-mlflow.sklearn.log_model(model, artifact_path="model")  # cukup "model", MLflow akan handle path
+mlflow.sklearn.log_model(model, artifact_path="model")  # cukup "model", jangan MLProject/model
 
 print("Accuracy:", acc)
 print(classification_report(y_test, y_pred))
