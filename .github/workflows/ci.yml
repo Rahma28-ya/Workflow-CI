@@ -25,10 +25,10 @@ jobs:
         run: |
           pip install mlflow scikit-learn pandas
 
-      # Run MLflow Project
-      - name: Run MLflow Project
+      # Run modelling.py to generate model artifact
+      - name: Run Modelling Script
         run: |
-          mlflow run MLProject --env-manager=local
+          python modelling.py
 
       # Upload MLflow artifacts 
       - name: Upload MLflow artifacts
