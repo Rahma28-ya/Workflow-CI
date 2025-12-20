@@ -25,17 +25,18 @@ jobs:
         run: |
           pip install mlflow scikit-learn pandas
 
-      # Run modelling.py to generate model artifact
+      # Run modelling.py inside MLProject
       - name: Run Modelling Script
+        working-directory: MLProject
         run: |
           python modelling.py
 
-      # Upload MLflow artifacts 
+      # Upload MLflow artifacts
       - name: Upload MLflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts
-          path: mlruns
+          path: MLProject/mlruns
 
       # Docker Hub login
       - name: Login to Docker Hub
@@ -46,19 +47,19 @@ jobs:
 
       # Build Docker Image with MLflow 
       - name: Build Docker Image with MLflow
+        working-directory: MLProject
         run: |
-          echo "Detecting experiment_id & run_id..."
           EXP_ID=$(ls mlruns | head -n 1)
           RUN_ID=$(ls mlruns/$EXP_ID | head -n 1)
 
-          echo "experiment_id=$EXP_ID"
-          echo "run_id=$RUN_ID"
+          echo "Using experiment_id=$EXP_ID"
+          echo "Using run_id=$RUN_ID"
 
           mlflow models build-docker \
             -m mlruns/$EXP_ID/$RUN_ID/artifacts/model \
             -n ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow
 
-      # Push Docker Image
+      #Push Docker Image
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow
