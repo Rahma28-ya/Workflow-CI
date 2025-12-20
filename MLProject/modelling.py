@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import mlflow
 import mlflow.sklearn
@@ -31,11 +30,9 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
 
-# Log metric
+# Log metric dan model ke MLflow
 mlflow.log_metric("accuracy", acc)
-
-# Log model ke MLflow dengan path default "model"
-mlflow.sklearn.log_model(model, artifact_path="model")
+mlflow.sklearn.log_model(model, artifact_path="model")  # cukup "model", MLflow akan handle path
 
 print("Accuracy:", acc)
 print(classification_report(y_test, y_pred))
