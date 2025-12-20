@@ -1,6 +1,7 @@
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -28,6 +29,11 @@ acc = accuracy_score(y_test, y_pred)
 # LANGSUNG LOG
 mlflow.log_metric("accuracy", acc)
 mlflow.sklearn.log_model(model, artifact_path="model")
+
+# SAVE MODEL KE FOLDER FISIK UNTUK DOCKER
+MODEL_DIR = "MLProject/model"
+os.makedirs(MODEL_DIR, exist_ok=True)
+mlflow.sklearn.save_model(model, MODEL_DIR)
 
 print("Accuracy:", acc)
 print(classification_report(y_test, y_pred))
