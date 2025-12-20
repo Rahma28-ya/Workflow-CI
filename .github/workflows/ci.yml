@@ -25,13 +25,13 @@ jobs:
         run: |
           pip install mlflow scikit-learn pandas
 
-      # Run modelling.py 
+      # Run modelling.py untuk generate model
       - name: Run Modelling Script
         working-directory: MLProject
         run: |
           python modelling.py
 
-      # Upload artifacts
+      # Upload MLflow artifacts
       - name: Upload MLflow artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -45,15 +45,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build Docker image
+      # Build Docker image pakai MLflow
       - name: Build Docker Image with MLflow
         working-directory: MLProject
         run: |
           EXP_ID=$(ls mlruns | head -n 1)
           RUN_ID=$(ls mlruns/$EXP_ID | head -n 1)
 
-          echo "experiment_id=$EXP_ID"
-          echo "run_id=$RUN_ID"
+          echo "Using experiment_id=$EXP_ID"
+          echo "Using run_id=$RUN_ID"
 
           mlflow models build-docker \
             -m mlruns/$EXP_ID/$RUN_ID/artifacts/model \
