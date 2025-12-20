@@ -1,4 +1,4 @@
-name: MLflow CI Retraining - Advanced
+name: MLflow CI Retraining - Advance
 
 on:
   push:
@@ -10,28 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Setup Python
+      # Setup Python
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 3. Install dependencies
-      - name: Install dependencies
+      # Install dependencies
+      - name: Install MLflow and scikit-learn
         run: |
-          pip install --upgrade pip
           pip install mlflow scikit-learn pandas
 
-      # 4. Run MLProject 
+      # Run MLflow Project (modelling.py akan dijalankan)
       - name: Run MLflow Project
         run: |
           mlflow run MLProject --env-manager=local
 
-      # 5. Detect latest MLflow run
+      # Upload MLflow artifacts (optional, untuk backup)
+      - name: Upload MLflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-artifacts
+          path: mlruns
+
+      # Detect latest experiment & run
       - name: Detect latest MLflow run
         id: detect
         run: |
@@ -39,30 +45,23 @@ jobs:
           RUN_ID=$(ls mlruns/$EXP_ID | sort | tail -n 1)
           echo "EXP_ID=$EXP_ID" >> $GITHUB_ENV
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Using experiment_id=$EXP_ID, run_id=$RUN_ID"
-          
-      # 6. Upload MLflow artifacts 
-      - name: Upload MLflow artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mlflow-artifacts
-          path: mlruns/${{ env.EXP_ID }}/${{ env.RUN_ID }}/artifacts
+          echo "Using EXP_ID=$EXP_ID, RUN_ID=$RUN_ID"
 
-      # 7. Docker Hub login
+      # Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 8. Build Docker image from MLflow model
-      - name: Build Docker Image
+      # Build Docker image from MLflow model
+      - name: Build Docker Image with MLflow
         run: |
           mlflow models build-docker \
             -m mlruns/${{ env.EXP_ID }}/${{ env.RUN_ID }}/artifacts/model \
             -n ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow:latest
 
-      # 9. Push Docker image
+      # Push Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow:latest
