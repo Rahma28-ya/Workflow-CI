@@ -10,53 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Setup Python
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3.9"
 
-    # Install dependencies
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install mlflow scikit-learn pandas numpy
 
-    # Jalankan training via MLflow Project
     - name: Run MLflow Project (Retraining)
       run: |
         cd MLProject
         mlflow run . --env-manager=local
+
+    - name: Check MLflow artifacts
+      run: |
+        cd MLProject
+        echo "Cek folder mlruns:"
+        ls mlruns
+        echo "Contoh isi artifact:"
+        find mlruns -type f | head -n 20
 
     - name: Upload MLflow artifacts
       uses: actions/upload-artifact@v4
       with:
         name: mlflow-artifacts
         path: MLProject/mlruns
-        
-    # Build Docker Image dari artifact (BENAR)
-    - name: Build Docker Image with MLflow
-      run: |
-        cd MLProject
-        echo "Daftar model:"
-        ls mlruns/0/models
-        mlflow models build-docker \
-          -m mlruns/0/models/*/artifacts \
-          --name ${{ secrets.DOCKERHUB_USERNAME }}/telco-churn-model
-
-
-    # Login Docker Hub
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    # Push image ke Docker Hub
-    - name: Push Docker Image
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/telco-churn-model
